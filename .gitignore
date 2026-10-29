@@ -12,8 +12,13 @@ __pycache__/
 
 # 비밀정보 (API 키, 비밀번호)
 .env
+.env.*
+!.env.example
 *.key
 secrets.*
+
+# 실행 로그
+*.log
 
 # Jupyter 체크포인트
 .ipynb_checkpoints/
