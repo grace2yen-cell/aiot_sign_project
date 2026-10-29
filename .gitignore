@@ -1,0 +1,51 @@
+# PyCharm 설정
+.idea/
+
+# 파이썬 가상환경
+venv/
+.venv/
+env/
+
+# 파이썬 캐시
+__pycache__/
+*.pyc
+
+# 비밀정보 (API 키, 비밀번호)
+.env
+*.key
+secrets.*
+
+# Jupyter 체크포인트
+.ipynb_checkpoints/
+
+# OS 자동 생성 파일
+Thumbs.db
+desktop.ini
+
+# ===== 데이터 / 모델 / 대용량 파일 =====
+# 데이터셋 (원본 영상 1.3GB, 전처리·증강 데이터 약 1GB)
+data/
+
+# 학습된 모델 가중치
+models/
+*.h5
+*.keras
+*.pt
+*.pth
+*.onnx
+*.tflite
+*.ckpt
+
+# 넘파이 배열 데이터
+*.npy
+*.npz
+
+# 영상 파일 (서버 수신 영상 received.avi 등)
+*.mp4
+*.avi
+*.mov
+*.mkv
+
+# 실행 로그 및 생성된 시각화 결과물
+logs/
+visualization/
