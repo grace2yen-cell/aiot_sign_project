@@ -1,20 +1,21 @@
 """
 4_augment_data.py
+[실제 사용] 학습 파이프라인 Step 4 - 데이터 증강
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Step 4: 데이터 증강 (Train + Val 모두)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🎯 목표:
+목표:
 - Train 데이터 증강 (person1~4)
-- Val 데이터 증강 (person5) ⭐ 추가!
+- Val 데이터 증강 (person5) 추가!
 - Train:Val = 80:20 비율 유지
 
-📊 증강 목표:
+증강 목표:
 - Train: 수화 600개/클래스, none 4800개
 - Val: 수화 150개/클래스, none 1200개
 - 총 Train 9,600개 : Val 2,400개
 
-📊 출력:
+출력:
 - augmented_data/X_train.npy: (9600, 30, 336)
 - augmented_data/y_train.npy: (9600,)
 - augmented_data/X_val.npy: (2400, 30, 336)
@@ -111,11 +112,7 @@ def velocity_perturbation(sequence, noise_ratio=VELOCITY_PERTURB_RATIO):
     perturbed = sequence.copy()
     n_frames = len(sequence)
 
-    flip_indices = np.random.choice(
-        n_frames,
-        size=int(n_frames * noise_ratio),
-        replace=False
-    )
+    flip_indices = np.random.choice(n_frames, size=int(n_frames * noise_ratio), replace=False)
 
     for idx in flip_indices:
         if idx > 0:
@@ -125,8 +122,7 @@ def velocity_perturbation(sequence, noise_ratio=VELOCITY_PERTURB_RATIO):
     return perturbed
 
 
-def add_pauses(sequence, pause_prob=PAUSE_PROBABILITY,
-               pause_strength=PAUSE_STRENGTH):
+def add_pauses(sequence, pause_prob=PAUSE_PROBABILITY, pause_strength=PAUSE_STRENGTH):
     """중간에 멈춤 추가"""
     paused = sequence.copy()
 
@@ -139,7 +135,7 @@ def add_pauses(sequence, pause_prob=PAUSE_PROBABILITY,
 
 
 # ==================== 증강 실행 ====================
-def augment_class_data(class_name, target_count, split='train'):
+def augment_class_data(class_name, target_count, split="train"):
     """
     한 클래스의 데이터 증강
 
@@ -158,22 +154,24 @@ def augment_class_data(class_name, target_count, split='train'):
     """
     class_dir = os.path.join(PROCESSED_DIR, class_name)
 
-    # ⭐ split에 따라 다른 파일 로드
-    if split == 'train':
-        data_path = os.path.join(class_dir, 'train_normalized.npy')
+    # split에 따라 다른 파일 로드
+    if split == "train":
+        data_path = os.path.join(class_dir, "train_normalized.npy")
     else:
-        data_path = os.path.join(class_dir, 'val_normalized.npy')
+        data_path = os.path.join(class_dir, "val_normalized.npy")
 
     if not os.path.exists(data_path):
-        print(f"❌ [{split.upper()}] {class_name} 데이터 없음")
+        print(f"[{split.upper()}] {class_name} 데이터 없음")
         return np.array([])
 
     # 원본 로드
     original = np.load(data_path)
     original_count = len(original)
 
-    print(f"   [{split.upper():5s}] {class_name:12s}: {original_count:4d} → {target_count:4d} "
-          f"(x{target_count / original_count:.1f})")
+    print(
+        f"   [{split.upper():5s}] {class_name:12s}: {original_count:4d} → {target_count:4d} "
+        f"(x{target_count / original_count:.1f})"
+    )
 
     # 증강 필요 개수
     n_augment_needed = target_count - original_count
@@ -232,28 +230,32 @@ def augment_class_data(class_name, target_count, split='train'):
 # ==================== 메인 ====================
 def main():
     print("=" * 60)
-    print("🔄 Step 4: 데이터 증강 (Train + Val)")
+    print("Step 4: 데이터 증강 (Train + Val)")
     print("=" * 60)
 
-    print(f"\n증강 목표 (80:20 비율):")
-    print(f"   [Train] 각 수화: {AUGMENT_TARGET['sign_train']}개, none: {AUGMENT_TARGET['none_train']}개")
-    print(f"   [Val]   각 수화: {AUGMENT_TARGET['sign_val']}개, none: {AUGMENT_TARGET['none_val']}개")
+    print("\n증강 목표 (80:20 비율):")
+    print(
+        f"   [Train] 각 수화: {AUGMENT_TARGET['sign_train']}개, none: {AUGMENT_TARGET['none_train']}개"
+    )
+    print(
+        f"   [Val]   각 수화: {AUGMENT_TARGET['sign_val']}개, none: {AUGMENT_TARGET['none_val']}개"
+    )
     print(f"   총 Train: {AUGMENT_TARGET['sign_train'] * 8 + AUGMENT_TARGET['none_train']}개")
     print(f"   총 Val: {AUGMENT_TARGET['sign_val'] * 8 + AUGMENT_TARGET['none_val']}개")
 
-    print(f"\n활성화된 증강 기법:")
+    print("\n활성화된 증강 기법:")
     if USE_SPEED_CHANGE:
-        print(f"   ✅ 속도 변화")
+        print("   속도 변화")
     if USE_TEMPORAL_NOISE:
-        print(f"   ✅ 시간축 노이즈")
+        print("   시간축 노이즈")
     if USE_SPATIAL_SCALE:
-        print(f"   ✅ 공간 스케일")
+        print("   공간 스케일")
     if USE_ROTATION:
-        print(f"   ✅ 회전")
+        print("   회전")
     if USE_VELOCITY_PERTURB:
-        print(f"   ✅ 속도 섭동")
+        print("   속도 섭동")
     if USE_PAUSE:
-        print(f"   ✅ 멈춤 추가")
+        print("   멈춤 추가")
 
     # ===== Train 증강 =====
     print("\n[1/4] Train 데이터 증강 중...")
@@ -263,13 +265,13 @@ def main():
 
     for class_idx, class_name in enumerate(CLASS_NAMES):
         # 목표 개수
-        if class_name == 'none':
-            target = AUGMENT_TARGET['none_train']
+        if class_name == "none":
+            target = AUGMENT_TARGET["none_train"]
         else:
-            target = AUGMENT_TARGET['sign_train']
+            target = AUGMENT_TARGET["sign_train"]
 
         # 증강
-        augmented = augment_class_data(class_name, target, split='train')
+        augmented = augment_class_data(class_name, target, split="train")
 
         if len(augmented) > 0:
             X_train.append(augmented)
@@ -283,9 +285,9 @@ def main():
     X_train = X_train[shuffle_indices]
     y_train = y_train[shuffle_indices]
 
-    print(f"\n✅ Train 증강 완료: {X_train.shape}")
+    print(f"\nTrain 증강 완료: {X_train.shape}")
 
-    # ===== Val 증강 (⭐ 추가!) =====
+    # ===== Val 증강 (추가!) =====
     print("\n[2/4] Val 데이터 증강 중...")
 
     X_val = []
@@ -293,13 +295,13 @@ def main():
 
     for class_idx, class_name in enumerate(CLASS_NAMES):
         # 목표 개수
-        if class_name == 'none':
-            target = AUGMENT_TARGET['none_val']
+        if class_name == "none":
+            target = AUGMENT_TARGET["none_val"]
         else:
-            target = AUGMENT_TARGET['sign_val']
+            target = AUGMENT_TARGET["sign_val"]
 
         # 증강
-        augmented = augment_class_data(class_name, target, split='val')
+        augmented = augment_class_data(class_name, target, split="val")
 
         if len(augmented) > 0:
             X_val.append(augmented)
@@ -314,23 +316,23 @@ def main():
         X_val = X_val[shuffle_indices]
         y_val = y_val[shuffle_indices]
 
-        print(f"✅ Val 증강 완료: {X_val.shape}")
+        print(f"Val 증강 완료: {X_val.shape}")
     else:
         X_val = np.array([])
         y_val = np.array([])
-        print("⚠️  Val 데이터 없음")
+        print("Val 데이터 없음")
 
     # ===== 저장 =====
     print("\n[3/4] 데이터 저장 중...")
 
     os.makedirs(AUGMENTED_DIR, exist_ok=True)
 
-    np.save(os.path.join(AUGMENTED_DIR, 'X_train.npy'), X_train)
-    np.save(os.path.join(AUGMENTED_DIR, 'y_train.npy'), y_train)
-    np.save(os.path.join(AUGMENTED_DIR, 'X_val.npy'), X_val)
-    np.save(os.path.join(AUGMENTED_DIR, 'y_val.npy'), y_val)
+    np.save(os.path.join(AUGMENTED_DIR, "X_train.npy"), X_train)
+    np.save(os.path.join(AUGMENTED_DIR, "y_train.npy"), y_train)
+    np.save(os.path.join(AUGMENTED_DIR, "X_val.npy"), X_val)
+    np.save(os.path.join(AUGMENTED_DIR, "y_val.npy"), y_val)
 
-    print(f"✅ 저장 완료:")
+    print("저장 완료:")
     print(f"   - X_train.npy: {X_train.shape}")
     print(f"   - y_train.npy: {y_train.shape}")
     print(f"   - X_val.npy: {X_val.shape}")
@@ -348,7 +350,7 @@ def main():
 
     # 통계 출력
     print("\n" + "=" * 60)
-    print("📊 최종 통계")
+    print("최종 통계")
     print("=" * 60)
 
     print("\nTrain 클래스별:")
@@ -370,7 +372,7 @@ def main():
 
         # 비율 계산
         ratio = len(y_train) / (len(y_train) + len(y_val)) * 100
-        print(f"\n📊 Train:Val 비율 = {ratio:.1f}:{100-ratio:.1f}")
+        print(f"\nTrain:Val 비율 = {ratio:.1f}:{100-ratio:.1f}")
 
     # ===== 증강 리포트 저장 =====
     print("\n증강 리포트 생성 중...")
@@ -383,7 +385,7 @@ def main():
         class_dir = os.path.join(PROCESSED_DIR, class_name)
 
         # Train 원본
-        train_norm_path = os.path.join(class_dir, 'train_normalized.npy')
+        train_norm_path = os.path.join(class_dir, "train_normalized.npy")
         if os.path.exists(train_norm_path):
             data = np.load(train_norm_path)
             original_train_counts[class_name] = len(data)
@@ -391,7 +393,7 @@ def main():
             original_train_counts[class_name] = 0
 
         # Val 원본
-        val_norm_path = os.path.join(class_dir, 'val_normalized.npy')
+        val_norm_path = os.path.join(class_dir, "val_normalized.npy")
         if os.path.exists(val_norm_path):
             data = np.load(val_norm_path)
             original_val_counts[class_name] = len(data)
@@ -399,15 +401,19 @@ def main():
             original_val_counts[class_name] = 0
 
     # 리포트 작성
-    report_path = os.path.join(AUGMENTED_DIR, 'augmentation_report.txt')
+    report_path = os.path.join(AUGMENTED_DIR, "augmentation_report.txt")
 
-    with open(report_path, 'w', encoding='utf-8') as f:
+    with open(report_path, "w", encoding="utf-8") as f:
         f.write("데이터 증강 리포트 (Train + Val)\n")
         f.write("=" * 60 + "\n\n")
 
-        f.write(f"증강 목표 (80:20 비율)\n")
-        f.write(f"  Train: 수화 {AUGMENT_TARGET['sign_train']}개/클래스, none {AUGMENT_TARGET['none_train']}개\n")
-        f.write(f"  Val:   수화 {AUGMENT_TARGET['sign_val']}개/클래스, none {AUGMENT_TARGET['none_val']}개\n\n")
+        f.write("증강 목표 (80:20 비율)\n")
+        f.write(
+            f"  Train: 수화 {AUGMENT_TARGET['sign_train']}개/클래스, none {AUGMENT_TARGET['none_train']}개\n"
+        )
+        f.write(
+            f"  Val:   수화 {AUGMENT_TARGET['sign_val']}개/클래스, none {AUGMENT_TARGET['none_val']}개\n\n"
+        )
 
         f.write("=" * 60 + "\n")
         f.write("[Train 데이터]\n")
@@ -456,19 +462,19 @@ def main():
         f.write(f"Train: {len(y_train)}개 ({train_ratio:.1f}%)\n")
         f.write(f"Val:   {len(y_val)}개 ({val_ratio:.1f}%)\n")
         f.write(f"총합:  {total_data}개\n")
-        f.write(f"\n비율: {train_ratio:.1f}:{val_ratio:.1f} ✅\n")
+        f.write(f"\n비율: {train_ratio:.1f}:{val_ratio:.1f}\n")
 
-    print(f"✅ 증강 리포트 저장: {report_path}")
+    print(f"증강 리포트 저장: {report_path}")
 
     print("\n" + "=" * 60)
-    print("✅ 데이터 증강 완료!")
+    print("데이터 증강 완료!")
     print("=" * 60)
-    print(f"💾 저장 위치: {AUGMENTED_DIR}")
-    print(f"📝 리포트: {report_path}")
-    print(f"\n📊 Train:Val = {train_ratio:.1f}:{val_ratio:.1f} (목표 80:20) ✅")
-    print("\n💡 다음 단계: 5_train_lstm.py 실행")
+    print(f"저장 위치: {AUGMENTED_DIR}")
+    print(f"리포트: {report_path}")
+    print(f"\nTrain:Val = {train_ratio:.1f}:{val_ratio:.1f} (목표 80:20)")
+    print("\n다음 단계: 5_train_lstm.py 실행")
     print("=" * 60)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

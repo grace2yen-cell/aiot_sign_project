@@ -1,5 +1,17 @@
-import socket, struct, os
-from server_support_with_prostprocess import main as run_inference
+"""
+7_server.py
+[실제 사용] 수화 인식 서버 - 실행 진입점
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. 클라이언트로부터 TCP로 영상 파일을 받아 저장
+2. server_support_with_postprocess.main()으로 수화 인식
+3. 인식 결과(클래스 이름)를 UDP로 클라이언트에 전송
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+"""
+
+import socket
+import struct
+
+from server_support_with_postprocess import main as run_inference
 from config import TCP_HOST, TCP_PORT, UDP_PORT, SAVE_NAME
 
 

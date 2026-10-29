@@ -1,0 +1,13 @@
+# Python 3.8 ~ 3.10
+# models/lstm_model.h5가 Keras 2.10.0으로 저장되어 있어 TensorFlow 2.10에 맞춤
+tensorflow==2.10.0
+numpy<1.24
+
+# mp.solutions.holistic (legacy API) 사용
+mediapipe<0.10.10
+opencv-python
+
+scikit-learn
+matplotlib
+seaborn
+tqdm

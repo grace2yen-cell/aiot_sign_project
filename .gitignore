@@ -46,6 +46,10 @@ models/
 *.mov
 *.mkv
 
-# 실행 로그 및 생성된 시각화 결과물
-logs/
-visualization/
+# 실행 로그 및 생성된 시각화 결과물 (README용 결과 이미지는 예외)
+logs/*
+!logs/training_history.png
+visualization/*
+!visualization/evaluation/
+visualization/evaluation/*
+!visualization/evaluation/*.png
